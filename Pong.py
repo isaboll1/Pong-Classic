@@ -106,11 +106,19 @@ def main():
     # Game Loop_________________________________________________________________________________________________
     while(running):
         keystate = SDL_GetKeyboardState(None)
-        # Event Loop
+        # Event Loop___________________________________________________________
         while(SDL_PollEvent(ctypes.byref(event))):
             if(event.type == SDL_QUIT):
                 running = False
                 break
+
+        # Logic________________________________________________________________
+
+        # Rendering____________________________________________________________
+        SDL_SetRenderDrawColor(renderer, 252, 252, 252, 255)
+        SDL_RenderClear(renderer)
+        # ....
+        SDL_RenderPresent(renderer)
 
     SDL_DestroyRenderer(renderer)
     SDL_DestroyWindow(window)
