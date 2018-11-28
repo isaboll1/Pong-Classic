@@ -125,6 +125,27 @@ class Paddle:
             SDL_RenderFillRect(self.r, item)
 
 
+class Walls:
+    def __init__(self, renderer, color = (0,0,0), size = (WIDTH, 20), pos = (0, HEIGHT - 20)):
+        self.r = renderer
+        self.color = SDL_Color(color[0], color[1], color[2], 255)
+        self.bounds = [SDL_Rect(0, pos[0], size[0], size[1]),
+                       SDL_Rect(0, pos[1], size[0],  size[1])]
+
+    def Touching_Paddle(self, paddle):
+        for part in paddle.body:
+            if SDL_HasIntersection(self.bounds[0], part):
+                return (True, 0)
+            elif SDL_HasIntersection(self.bounds[1], part):
+                return (True, 1)
+        return (False, -1)
+
+    def Render(self):
+        SDL_SetRenderDrawColor(self.r, self.color.r, self.color.g, self.color.b, self.color.a)
+        for wall in self.bounds:
+            SDL_RenderFillRect(self.r, wall)
+
+
 # FUNCTIONS_____________________________________________________________________________________________________
 def WindowState(window, renderer, fs):
     if not fs:
@@ -173,6 +194,7 @@ def main():
     'Quit':        TextObject(renderer, 'Quit', 80, 100, ['arcade'], location = (590, 550))
     }
     paddles = [Paddle(renderer, position = (20, 290)), Paddle(renderer, position = (1245, 290))]
+    wall = Walls(renderer)
 
     # Game Loop_________________________________________________________________________________________________
     while (running):
@@ -216,6 +238,14 @@ def main():
                 game = True
 
         if (game):
+            for paddle in paddles:
+                result = wall.Touching_Paddle(paddle)
+                if result[0]:
+                    if result[1] == 0:
+                        paddle.Move('DOWN', speed)
+                    else:
+                        paddle.Move('UP', speed)
+
             if not paused:
                 """ This code is for controlling the first paddle """
                 if keystate[SDL_SCANCODE_W]:
@@ -233,6 +263,8 @@ def main():
         SDL_RenderClear(renderer)
         for paddle in paddles:
             paddle.Render()
+
+        wall.Render()
 
         if (menu):
             for item in menu_items:
