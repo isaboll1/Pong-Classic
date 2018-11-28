@@ -5,17 +5,20 @@ from sdl2.sdlttf import *
 import ctypes
 from math import *
 
-# GLOBALS_____________________________________________________________
-WIDTH = 800
-HEIGHT = 600
+# GLOBALS______________________________________________________________________________________________________
+WIDTH = 1280
+HEIGHT = 720
 
-# CLASSES_____________________________________________________________
+# CLASSES______________________________________________________________________________________________________
 class Pointer:
+    cursors = dict()
+
     def __init__(self):
         self.pointer = SDL_Rect(0, 0, 10, 10)
         self.clicking = False
 
     def Compute(self, event):
+        self.Set_Cursor(SDL_SYSTEM_CURSOR_ARROW)
         self.clicking = False
 
         if(event.type == SDL_MOUSEBUTTONDOWN):
@@ -31,6 +34,15 @@ class Pointer:
 
     def Is_Clicking(self, item):
         return self.Is_Touching(item) and self.clicking
+
+    def Set_Cursor(self, id):
+        if id not in Pointer.cursors:
+            Pointer.cursors[id] = SDL_CreateSystemCursor(id)
+        SDL_SetCursor(Pointer.cursors[id])
+
+    def __del__(self):
+        for cursor in Pointer.cursors:
+            SDL_FreeCursor(Pointer.cursors[cursor])
 
 
 class TextObject:
@@ -83,15 +95,16 @@ def Deleter(dictionary_list):
         for item in list(dictionary):
             del dictionary[item]
 
+
 # MAIN__________________________________________________________________________________________________________
 def main():
     if (TTF_Init() < 0):
         print(TTF_GetError())
-        return
+        return -1
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) < 0):
         print(SDL_GetError())
-        return
+        return -1
 
     window = SDL_CreateWindow(b"Pong Classic - By Isa Bolling", SDL_WINDOWPOS_UNDEFINED,
                             SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN)
@@ -100,26 +113,72 @@ def main():
 
     # Variables_________________________________________________________________________________________________
     running = True
+    menu = True
+    game = False
+    fullscreen = False
 
     # Objects___________________________________________________________________________________________________
+    mouse = Pointer()
+    menu_items = {
+    'Title':       TextObject(renderer, 'Pong   Classic', 600, 300, ['arcade', b'font/arcade.ttf'], location = (345, 0)),
+    'Start':       TextObject(renderer, 'Start', 100, 100, ['arcade'], location = (583, 350)),
+    'Fullscreen':  TextObject(renderer, 'Fullscreen', 200, 85, ['arcade'], location = (543, 454)),
+    'Quit':        TextObject(renderer, 'Quit', 80, 100, ['arcade'], location = (590, 550))
+    }
 
     # Game Loop_________________________________________________________________________________________________
     while(running):
         keystate = SDL_GetKeyboardState(None)
         # Event Loop___________________________________________________________
         while(SDL_PollEvent(ctypes.byref(event))):
+            mouse.Compute(event)
             if(event.type == SDL_QUIT):
                 running = False
                 break
 
         # Logic________________________________________________________________
+        if (menu):
+            for item in menu_items:
+                if item == 'Title':
+                    pass
+                else:
+                    if mouse.Is_Touching(menu_items[item]):
+                        menu_items[item].highlight = True
+                        mouse.Set_Cursor(SDL_SYSTEM_CURSOR_HAND)
+                    else:
+                        menu_items[item].highlight = False
+
+            if mouse.Is_Clicking(menu_items['Quit']):
+                running = False
+                break
+
+            if mouse.Is_Clicking(menu_items['Fullscreen']):
+                if fullscreen is False:
+                    fullscreen = True
+                    WindowState(window, renderer, fullscreen)
+                else:
+                    fullscreen = False
+                    WindowState(window, renderer, fullscreen)
+
+        if (game):
+            pass
 
         # Rendering____________________________________________________________
         SDL_SetRenderDrawColor(renderer, 252, 252, 252, 255)
         SDL_RenderClear(renderer)
-        # ....
+
+        if (menu):
+            for item in menu_items:
+                menu_items[item].Render()
+
+        if (game):
+            pass
+
         SDL_RenderPresent(renderer)
 
+        SDL_Delay(10)
+
+    Deleter([menu_items])
     SDL_DestroyRenderer(renderer)
     SDL_DestroyWindow(window)
     TTF_Quit()
