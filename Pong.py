@@ -6,6 +6,7 @@ import ctypes
 from math import *
 
 # GLOBALS______________________________________________________________________________________________________
+DEBUG = False
 WIDTH = 1280
 HEIGHT = 720
 
@@ -80,6 +81,50 @@ class TextObject:
         SDL_DestroyTexture(self.message)
 
 
+class Paddle:
+    def __init__(self, renderer, position = (0,0), color = (0,0,0), size = 17):
+        self.r = renderer
+        self.head = SDL_Rect(position[0], position[1], size, size)
+        self.body = [None for i in range(7)]
+        self.body[3] = self.head
+        self.direction = None
+
+        """This code is for creating the body of the paddle"""
+        for i in range(3, 0, -1):
+            self.body[i-1] = SDL_Rect(self.body[i].x, self.body[i].y - size, size, size)
+        for i in range(3, 6):
+            self.body[i+1] = SDL_Rect(self.body[i].x, self.body[i].y + size, size, size)
+
+        self.color = SDL_Color(color[0], color[1], color[2], 255)
+
+        if DEBUG:
+            for i in self.body:
+                print(i)
+
+    def Move(self, direction, speed, movement = True):
+        self.direction = direction
+        if movement:
+            if direction == 'UP':
+                for body in self.body:
+                    body.y -= speed
+            elif direction == 'DOWN':
+                for body in self.body:
+                    body.y += speed
+
+    def Is_Touching(self, item):
+        """ This function returns true or false if the paddle is touching the item. it also
+            returns the index of the part of the paddle that touched the item. """
+        for i in range(len(self.body)):
+            if SDL_HasIntersection(self.body[i], item.rect):
+                return (True, i)
+        return (False, -1)
+
+    def Render(self):
+        SDL_SetRenderDrawColor(self.r, self.color.r, self.color.g, self.color.b, self.color.a)
+        for item in self.body:
+            SDL_RenderFillRect(self.r, item)
+
+
 # FUNCTIONS_____________________________________________________________________________________________________
 def WindowState(window, renderer, fs):
     if not fs:
@@ -116,6 +161,8 @@ def main():
     menu = True
     game = False
     fullscreen = False
+    paused = False
+    speed = 5
 
     # Objects___________________________________________________________________________________________________
     mouse = Pointer()
@@ -125,9 +172,10 @@ def main():
     'Fullscreen':  TextObject(renderer, 'Fullscreen', 200, 85, ['arcade'], location = (543, 454)),
     'Quit':        TextObject(renderer, 'Quit', 80, 100, ['arcade'], location = (590, 550))
     }
+    paddles = [Paddle(renderer, position = (20, 290)), Paddle(renderer, position = (1245, 290))]
 
     # Game Loop_________________________________________________________________________________________________
-    while(running):
+    while (running):
         keystate = SDL_GetKeyboardState(None)
         # Event Loop___________________________________________________________
         while(SDL_PollEvent(ctypes.byref(event))):
@@ -135,6 +183,9 @@ def main():
             if(event.type == SDL_QUIT):
                 running = False
                 break
+        if keystate[SDL_SCANCODE_ESCAPE]:
+            running = False
+            break
 
         # Logic________________________________________________________________
         if (menu):
@@ -160,12 +211,28 @@ def main():
                     fullscreen = False
                     WindowState(window, renderer, fullscreen)
 
+            if mouse.Is_Clicking(menu_items['Start']):
+                menu = False
+                game = True
+
         if (game):
-            pass
+            if not paused:
+                """ This code is for controlling the first paddle """
+                if keystate[SDL_SCANCODE_W]:
+                    paddles[0].Move('UP', speed)
+                if keystate[SDL_SCANCODE_S]:
+                    paddles[0].Move('DOWN', speed)
+                """ This code is for controlling the second paddle """
+                if keystate[SDL_SCANCODE_UP]:
+                    paddles[1].Move('UP', speed)
+                if keystate[SDL_SCANCODE_DOWN]:
+                    paddles[1].Move('DOWN', speed)
 
         # Rendering____________________________________________________________
         SDL_SetRenderDrawColor(renderer, 252, 252, 252, 255)
         SDL_RenderClear(renderer)
+        for paddle in paddles:
+            paddle.Render()
 
         if (menu):
             for item in menu_items:
@@ -175,14 +242,13 @@ def main():
             pass
 
         SDL_RenderPresent(renderer)
-
         SDL_Delay(10)
 
     Deleter([menu_items])
     SDL_DestroyRenderer(renderer)
     SDL_DestroyWindow(window)
-    TTF_Quit()
     SDL_Quit()
+    TTF_Quit()
     return 0
 
 
