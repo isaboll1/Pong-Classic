@@ -166,7 +166,7 @@ class Ball:
 
     def Move(self, degree, speed = 5):
         self.x += speed * cos(radians(degree))
-        self.y +=  speed * sin(radians(degree))
+        self.y += speed * sin(radians(degree))
         self.rect.x = int(self.x)
         self.rect.y = int(self.y)
 
@@ -200,7 +200,6 @@ class Clock:
 
     def Counter(self):
         self.s += self.dt_s
-
 
 
 # FUNCTIONS_____________________________________________________________________________________________________
@@ -290,7 +289,7 @@ def main():
     mouse = Pointer()
     menu_items = {
     'Title':       TextObject(renderer, 'Pong Classic', 600, 240, ['joystix', b'font/joystix.ttf'], location = (345, 0)),
-    'Start':       TextObject(renderer, 'Start', 90, 85, ['joystix'], location = (583, 350)),
+    'Start':       TextObject(renderer, 'Start', 100, 85, ['joystix'], location = (583, 350)),
     'Fullscreen':  TextObject(renderer, 'Fullscreen', 200, 85, ['joystix'], location = (543, 450)),
     'Quit':        TextObject(renderer, 'Quit', 90, 85, ['joystix'], location = (590, 550))
     }
@@ -378,7 +377,6 @@ def main():
                     clock.s = 0
                     ball.Set_Position((WIDTH // 2, HEIGHT // 2))
                     ball_speed = 7
-
 
         # Rendering____________________________________________________________
         SDL_SetRenderDrawColor(renderer, 252, 252, 252, 255)
