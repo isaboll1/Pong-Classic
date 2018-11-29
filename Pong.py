@@ -216,12 +216,12 @@ class Scoreboard:
         self.P2 = []
         for i in range(11):
             if i != 10:
-                self.P1.append(TextObject(renderer, str(i), 50, 70, ['joystix'], location = (position [0] - size * 3 -2, size),
+                self.P1.append(TextObject(renderer, str(i), 50, 70, ['joystix'], location = (position [0] - size * 3 -5, size),
                                           color = (self.color.r, self.color.g, self.color.b)))
                 self.P2.append(TextObject(renderer, str(i), 50, 70, ['joystix'], location = (position [0] + size * 2, size),
                                           color = (self.color.r, self.color.g, self.color.b)))
             else:
-                self.P1.append(TextObject(renderer, str(i), 70, 70, ['joystix'], location = (position [0] - size * 3 -2, size),
+                self.P1.append(TextObject(renderer, str(i), 70, 70, ['joystix'], location = (position [0] - size * 3 -25, size),
                                           color = (self.color.r, self.color.g, self.color.b)))
                 self.P2.append(TextObject(renderer, str(i), 70, 70, ['joystix'], location=(position[0] + size * 2, size),
                                color=(self.color.r, self.color.g, self.color.b)))
