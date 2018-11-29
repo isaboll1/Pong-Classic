@@ -201,6 +201,31 @@ class Clock:
     def Counter(self):
         self.s += self.dt_s
 
+class Scoreboard:
+    def __init__(self, renderer, position = (WIDTH // 2 - 2, 0), size = 20, color = (169, 169, 169, 240)):
+        self.color = SDL_Color(color[0], color[1], color[2], color[3])
+        self.board = []
+        self.r = renderer
+        y = 0
+        """ For creating the actual divider in the middle of the screen """
+        while y < HEIGHT - 40:
+            y += size * 2
+            self.board.append(SDL_Rect(position[0], y - 20, size, size))
+        self.P1 = []
+        self.P2 = []
+        for i in range(11):
+            self.P1.append(TextObject(renderer, str(i), 50, 50, ['joystix'], location = (position [0] - size * 3 -2, size),
+                                      color = (self.color.r, self.color.g, self.color.b)))
+            self.P2.append(TextObject(renderer, str(i), 50, 50, ['joystix'], location = (position [0] + size * 2, size),
+                                      color = (self.color.r, self.color.g, self.color.b)))
+
+    def Render(self, position = None):
+        if position is not None:
+            self.P1[position[0]].Render()
+            self.P2[position[1]].Render()
+        SDL_SetRenderDrawColor(self.r, self.color.r, self.color.g, self.color.b, self.color.a)
+        for piece in self.board:
+            SDL_RenderFillRect(self.r, piece)
 
 # FUNCTIONS_____________________________________________________________________________________________________
 def WindowState(window, renderer, fs):
@@ -284,6 +309,9 @@ def main():
     speed = 6
     ball_speed = 8
     degree = 180
+    player_1_score = 0
+    player_2_score = 0
+    scoring = False
 
     # Objects___________________________________________________________________________________________________
     mouse = Pointer()
@@ -297,6 +325,7 @@ def main():
     wall = Walls(renderer)
     ball = Ball(renderer, position = (60, 290))
     clock = Clock()
+    scoreboard = Scoreboard(renderer)
 
     # Game Loop_________________________________________________________________________________________________
     while (running):
@@ -368,15 +397,27 @@ def main():
                 if keystate[SDL_SCANCODE_DOWN]:
                     paddles[1].Move('DOWN', speed)
 
-            """ This code is for making sure the ball goes back to the middle 
-                after going outta bounds """
-            if ball.x < -20 or ball.x > WIDTH + 20:
+            """ This code is for making sure the ball goes back to the middle
+                after going outta bounds, and for implementing the scoring """
+            if ball.x < - 20 or ball.x > WIDTH + 20:
                 ball_speed = 0
                 clock.Counter()
+                if not scoring:
+                    if ball.x < - 20:
+                        player_2_score += 1
+                        if player_2_score > 10:
+                            player_2_score = 10
+                        scoring = True
+                    else:
+                        player_1_score += 1
+                        if player_1_score > 10:
+                            player_1_score = 10
+                        scoring = True
                 if clock.s > 2:
                     clock.s = 0
                     ball.Set_Position((WIDTH // 2, HEIGHT // 2))
                     ball_speed = 7
+                    scoring = False
 
         # Rendering____________________________________________________________
         SDL_SetRenderDrawColor(renderer, 252, 252, 252, 255)
@@ -385,14 +426,14 @@ def main():
         for paddle in paddles:
             paddle.Render()
         wall.Render()
-        ball.Render()
 
         if (menu):
             for item in menu_items:
                 menu_items[item].Render()
 
         if (game):
-            pass
+            scoreboard.Render((player_1_score, player_2_score))
+        ball.Render()
 
         SDL_RenderPresent(renderer)
         SDL_Delay(10)
