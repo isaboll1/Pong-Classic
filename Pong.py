@@ -1,3 +1,4 @@
+#Pong by Isa Bolling
 import os
 os.environ['PYSDL2_DLL_PATH'] = os.path.dirname(os.path.abspath(__file__))
 from sdl2 import *
@@ -89,7 +90,7 @@ class Paddle:
         self.body[3] = self.head
         self.direction = None
 
-        """This code is for creating the body of the paddle"""
+        """ This code is for creating the body of the paddle """
         for i in range(3, 0, -1):
             self.body[i-1] = SDL_Rect(self.body[i].x, self.body[i].y - size, size, size)
         for i in range(3, 6):
@@ -195,7 +196,7 @@ class Clock:
 
     def Get_Distance(self, speed):
         """ This function returns the amount of pixels to move by under a constant timestep,
-            no matter how fast the processor actually is on the host computer"""
+            no matter how fast the processor actually is on the host computer """
         return (speed * 100) * self.dt_s
 
     def Counter(self):
@@ -214,10 +215,17 @@ class Scoreboard:
         self.P1 = []
         self.P2 = []
         for i in range(11):
-            self.P1.append(TextObject(renderer, str(i), 50, 50, ['joystix'], location = (position [0] - size * 3 -2, size),
-                                      color = (self.color.r, self.color.g, self.color.b)))
-            self.P2.append(TextObject(renderer, str(i), 50, 50, ['joystix'], location = (position [0] + size * 2, size),
-                                      color = (self.color.r, self.color.g, self.color.b)))
+            if i != 10:
+                self.P1.append(TextObject(renderer, str(i), 50, 70, ['joystix'], location = (position [0] - size * 3 -2, size),
+                                          color = (self.color.r, self.color.g, self.color.b)))
+                self.P2.append(TextObject(renderer, str(i), 50, 70, ['joystix'], location = (position [0] + size * 2, size),
+                                          color = (self.color.r, self.color.g, self.color.b)))
+            else:
+                self.P1.append(TextObject(renderer, str(i), 70, 70, ['joystix'], location = (position [0] - size * 3 -2, size),
+                                          color = (self.color.r, self.color.g, self.color.b)))
+                self.P2.append(TextObject(renderer, str(i), 70, 70, ['joystix'], location=(position[0] + size * 2, size),
+                               color=(self.color.r, self.color.g, self.color.b)))
+
 
     def Render(self, position = None):
         if position is not None:
@@ -226,6 +234,7 @@ class Scoreboard:
         SDL_SetRenderDrawColor(self.r, self.color.r, self.color.g, self.color.b, self.color.a)
         for piece in self.board:
             SDL_RenderFillRect(self.r, piece)
+
 
 # FUNCTIONS_____________________________________________________________________________________________________
 def WindowState(window, renderer, fs):
@@ -307,7 +316,7 @@ def main():
     fullscreen = False
     paused = False
     speed = 6
-    ball_speed = 8
+    ball_speed = 10
     degree = 180
     player_1_score = 0
     player_2_score = 0
@@ -338,6 +347,7 @@ def main():
             if(event.type == SDL_QUIT):
                 running = False
                 break
+
         if keystate[SDL_SCANCODE_ESCAPE]:
             running = False
             break
@@ -373,6 +383,8 @@ def main():
                     WindowState(window, renderer, fullscreen)
 
             if mouse.Is_Clicking(menu_items['Start']):
+                ball.Set_Position((WIDTH // 2, HEIGHT // 2 - 30))
+                degree = 1
                 menu = False
                 game = True
 
@@ -415,8 +427,8 @@ def main():
                         scoring = True
                 if clock.s > 2:
                     clock.s = 0
-                    ball.Set_Position((WIDTH // 2, HEIGHT // 2))
-                    ball_speed = 7
+                    ball.Set_Position((WIDTH // 2, HEIGHT // 2 - 20))
+                    ball_speed = 10
                     scoring = False
 
         # Rendering____________________________________________________________
