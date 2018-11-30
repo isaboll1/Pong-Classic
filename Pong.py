@@ -89,6 +89,7 @@ class Paddle:
         self.body = [None for i in range(7)]
         self.body[3] = self.head
         self.direction = None
+        self.size = size
 
         """ This code is for creating the body of the paddle """
         for i in range(3, 0, -1):
@@ -101,6 +102,16 @@ class Paddle:
         if DEBUG:
             for i in self.body:
                 print(i)
+
+    def Set_Position(self, position):
+        self.body[3].x = position[0]
+        self.body[3].y = position[1]
+        for i in range(3, 0, -1):
+            self.body[i-1].x = self.body[i].x
+            self.body[i-1].y = self.body[i].y - self.size
+        for i in range(3, 6):
+            self.body[i+1].x = self.body[i].x
+            self.body[i+1].y = self.body[i].y + self.size
 
     def Move(self, direction, speed, movement = True):
         self.direction = direction
@@ -226,14 +237,14 @@ class Scoreboard:
                 self.P2.append(TextObject(renderer, str(i), 70, 70, ['joystix'], location=(position[0] + size * 2, size),
                                color=(self.color.r, self.color.g, self.color.b)))
 
-
-    def Render(self, position = None):
+    def Render(self, position = None, b = True):
         if position is not None:
             self.P1[position[0]].Render()
             self.P2[position[1]].Render()
-        SDL_SetRenderDrawColor(self.r, self.color.r, self.color.g, self.color.b, self.color.a)
-        for piece in self.board:
-            SDL_RenderFillRect(self.r, piece)
+        if b:
+            SDL_SetRenderDrawColor(self.r, self.color.r, self.color.g, self.color.b, self.color.a)
+            for piece in self.board:
+                SDL_RenderFillRect(self.r, piece)
 
 
 # FUNCTIONS_____________________________________________________________________________________________________
@@ -321,6 +332,9 @@ def main():
     player_1_score = 0
     player_2_score = 0
     scoring = False
+    game_over = False
+    winner = 0
+    board = True
 
     # Objects___________________________________________________________________________________________________
     mouse = Pointer()
@@ -335,6 +349,14 @@ def main():
     ball = Ball(renderer, position = (60, 290))
     clock = Clock()
     scoreboard = Scoreboard(renderer)
+    winner_text = [
+        TextObject(renderer, 'Player 1 Wins!', 900, 340, ['joystix'], location = (210, 40), color = (105, 105, 105)),
+        TextObject(renderer, 'Player 2 Wins!', 900, 340, ['joystix'], location = (210, 40), color = (105, 105, 105))]
+    game_items = {
+    'Paused':     TextObject(renderer, 'Paused', 400, 240, ['joystix'], location = (450, 200), color = (105, 105, 105)),
+    'Restart':    TextObject(renderer, 'Restart', 120, 85, ['joystix'], location = (450, 350), color = (105, 105, 105)),
+    'Menu':       TextObject(renderer, 'Menu', 90, 85, ['joystix'], location = (720, 350), color = (105, 105, 105))
+    }
 
     # Game Loop_________________________________________________________________________________________________
     while (running):
@@ -347,6 +369,15 @@ def main():
             if(event.type == SDL_QUIT):
                 running = False
                 break
+            if game and not game_over:
+                if(event.type == SDL_KEYDOWN):
+                    if (event.key.keysym.scancode == SDL_SCANCODE_P):
+                        if not paused:
+                            paused = True
+                            board = False
+                        else:
+                            paused = False
+                            board = True
 
         if keystate[SDL_SCANCODE_ESCAPE]:
             running = False
@@ -397,7 +428,7 @@ def main():
                     else:
                         paddle.Move('UP', speed)
 
-            if not paused:
+            if not paused and not game_over:
                 """ This code is for controlling the first paddle """
                 if keystate[SDL_SCANCODE_W]:
                     paddles[0].Move('UP', speed)
@@ -431,6 +462,54 @@ def main():
                     ball_speed = 10
                     scoring = False
 
+            if player_1_score == 10:
+                winner = 0
+                game_over = True
+            elif player_2_score == 10:
+                winner = 1
+                game_over = True
+
+            if (game_over):
+                paused = False
+                board = False
+                ball_speed = 0
+                ball.Set_Position((40, -40))
+                for item in game_items:
+                    if item == 'Paused':
+                        pass
+                    else:
+                        if mouse.Is_Touching(game_items[item]):
+                            game_items[item].highlight = True
+                            mouse.Set_Cursor(SDL_SYSTEM_CURSOR_HAND)
+                        else:
+                            game_items[item].highlight = False
+
+                if mouse.Is_Clicking(game_items['Restart']):
+                    player_1_score = 0
+                    player_2_score = 0
+                    ball.Set_Position((WIDTH // 2, HEIGHT // 2 - 30))
+                    paddles[0].Set_Position((20, 290))
+                    paddles[1].Set_Position((1245, 290))
+                    degree = 1
+                    ball_speed = 10
+                    game_over = False
+                    scoring = False
+                    board = True
+
+                if mouse.Is_Clicking(game_items['Menu']):
+                    player_1_score = 0
+                    player_2_score = 0
+                    ball.Set_Position((60, 290))
+                    degree = 180
+                    paddles[0].Set_Position((20, 290))
+                    paddles[1].Set_Position((1245, 290))
+                    ball_speed = 10
+                    game_over = False
+                    scoring = False
+                    board = True
+                    game = False
+                    menu = True
+
         # Rendering____________________________________________________________
         SDL_SetRenderDrawColor(renderer, 252, 252, 252, 255)
         SDL_RenderClear(renderer)
@@ -444,13 +523,22 @@ def main():
                 menu_items[item].Render()
 
         if (game):
-            scoreboard.Render((player_1_score, player_2_score))
+            scoreboard.Render((player_1_score, player_2_score), board)
         ball.Render()
+        if (game_over):
+            winner_text[winner].Render()
+            for item in game_items:
+                if item == 'Paused':
+                    pass
+                else:
+                    game_items[item].Render()
+        if (paused):
+            game_items['Paused'].Render()
 
         SDL_RenderPresent(renderer)
         SDL_Delay(10)
 
-    Deleter([menu_items])
+    Deleter([menu_items, game_items])
     SDL_DestroyRenderer(renderer)
     SDL_DestroyWindow(window)
     SDL_Quit()
