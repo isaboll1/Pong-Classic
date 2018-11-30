@@ -213,6 +213,7 @@ class Clock:
     def Counter(self):
         self.s += self.dt_s
 
+
 class Scoreboard:
     def __init__(self, renderer, position = (WIDTH // 2 - 2, 0), size = 20, color = (169, 169, 169, 240)):
         self.color = SDL_Color(color[0], color[1], color[2], color[3])
