@@ -11,6 +11,6 @@ currently it is only the two player version. In order to control the game, playe
 
 ## Screenshots
 
-![some gameplay!](Pong Gameplay.png)
+* ![some gameplay!](Pong_Gameplay.png)
 
-![player 2 won!](Pong Player Wins.png)
+* ![player 2 won!](Pong_Winner.png)
