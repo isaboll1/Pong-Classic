@@ -351,8 +351,8 @@ def main():
     clock = Clock()
     scoreboard = Scoreboard(renderer)
     winner_text = [
-        TextObject(renderer, 'Player 1 Wins!', 900, 340, ['joystix'], location = (210, 40), color = (105, 105, 105)),
-        TextObject(renderer, 'Player 2 Wins!', 900, 340, ['joystix'], location = (210, 40), color = (105, 105, 105))]
+        TextObject(renderer, 'Player 1 Wins', 900, 340, ['joystix'], location = (210, 40), color = (105, 105, 105)),
+        TextObject(renderer, 'Player 2 Wins', 900, 340, ['joystix'], location = (210, 40), color = (105, 105, 105))]
     game_items = {
     'Paused':     TextObject(renderer, 'Paused', 400, 240, ['joystix'], location = (450, 200), color = (105, 105, 105)),
     'Restart':    TextObject(renderer, 'Restart', 120, 85, ['joystix'], location = (450, 350), color = (105, 105, 105)),
