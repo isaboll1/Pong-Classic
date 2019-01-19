@@ -1,4 +1,6 @@
-#Pong by Isa Bolling
+#!/usr/bin/env python
+
+#Pong-Classic by Isa Bolling
 import os
 os.environ['PYSDL2_DLL_PATH'] = os.path.dirname(os.path.abspath(__file__))
 from sdl2 import *
@@ -265,7 +267,7 @@ def Deleter(dictionary_list):
 
 
 def Change_Degree(paddles, degree, ball):
-    """ The result of the ball touching the paddle is saved under the result variable
+    """ The result of the ball touching the paddle is saved under the result variable.
         from the result variable, the second value of the result variable is used to
         check which angle to move the ball in. """
     paddle_1_result = paddles[0].Is_Touching(ball)
@@ -525,7 +527,9 @@ def main():
 
         if (game):
             scoreboard.Render((player_1_score, player_2_score), board)
+            
         ball.Render()
+        
         if (game_over):
             winner_text[winner].Render()
             for item in game_items:
