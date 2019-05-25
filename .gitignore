@@ -358,4 +358,4 @@ MigrationBackup/
 *.iml
 out
 gen
-.gitignore
+!/.gitignore
