@@ -320,7 +320,7 @@ def main():
 
     window = SDL_CreateWindow(b"Pong Classic - By Isa Bolling", SDL_WINDOWPOS_UNDEFINED,
                             SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN)
-    renderer = SDL_CreateRenderer(window, -1, 0)
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC)
     event = SDL_Event()
 
     # Variables_________________________________________________________________________________________________
@@ -391,7 +391,7 @@ def main():
         if not paused:
             if ball.Is_Touching_Wall(wall):
                 degree = 360-degree
-            ball.Move(degree, ball_speed)
+            ball.Move(degree, int(clock.Get_Distance(ball_speed)))
 
         if (menu):
             for item in menu_items:
@@ -427,21 +427,21 @@ def main():
                 result = wall.Touching_Paddle(paddle)
                 if result[0]:
                     if result[1] == 0:
-                        paddle.Move('DOWN', speed)
+                        paddle.Move('DOWN', int(clock.Get_Distance(speed)))
                     else:
-                        paddle.Move('UP', speed)
+                        paddle.Move('UP', int(clock.Get_Distance(speed)))
 
             if not paused and not game_over:
                 """ This code is for controlling the first paddle """
                 if keystate[SDL_SCANCODE_W]:
-                    paddles[0].Move('UP', speed)
+                    paddles[0].Move('UP', int(clock.Get_Distance(speed)))
                 if keystate[SDL_SCANCODE_S]:
-                    paddles[0].Move('DOWN', speed)
+                    paddles[0].Move('DOWN', int(clock.Get_Distance(speed)))
                 """ This code is for controlling the second paddle """
                 if keystate[SDL_SCANCODE_UP]:
-                    paddles[1].Move('UP', speed)
+                    paddles[1].Move('UP', int(clock.Get_Distance(speed)))
                 if keystate[SDL_SCANCODE_DOWN]:
-                    paddles[1].Move('DOWN', speed)
+                    paddles[1].Move('DOWN', int(clock.Get_Distance(speed)))
 
             """ This code is for making sure the ball goes back to the middle
                 after going outta bounds, and for implementing the scoring """
