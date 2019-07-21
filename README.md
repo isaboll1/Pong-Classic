@@ -1,5 +1,5 @@
 # Pong-Classic
-![Pong Classic!](Pong.png)
+![Pong Classic!](screenshots/Pong.png)
 A recreation of the game Pong, made in Python using SDL2. Since the game is "classic" pong,
 currently it is only the two player version. In order to control the game, player 1 uses the
 'W' and 'S' keys to move up and down, while player 2 uses the 'UP' and 'DOWN' arrow keys to move.
@@ -13,6 +13,6 @@ Use the 'P' key to pause while in-game.
 
 ## Screenshots
 
-* ![some gameplay!](Pong_Gameplay.png)
+* ![some gameplay!](screenshots/Pong_Gameplay.png)
 
-* ![player 2 won!](Pong_Winner.png)
+* ![player 2 won!](screenshots/Pong_Winner.png)
